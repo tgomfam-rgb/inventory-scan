@@ -3,21 +3,42 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Logging...</title>
+    <title>Logging…</title>
+    <style>
+      body { font-family: Arial, sans-serif; padding: 18px; line-height: 1.4; }
+      .status { font-size: 18px; margin: 10px 0; }
+      .small { color: #666; font-size: 13px; margin-top: 14px; }
+    </style>
   </head>
   <body>
-    Logging scan…
+    <div class="status" id="status">Logging scan…</div>
+    <div class="small" id="detail"></div>
+
     <script>
       const scriptBase = "https://script.google.com/macros/s/AKfycbzCvQMCxdzJTXy6qk8gAE2BEHXFJJfQ-5WUP14bEz6Vu8PSbvwoTwmw8r6hDicDk8oBgA/exec";
+
       const url = new URL(window.location.href);
       const item = url.searchParams.get("item") || "";
       const action = url.searchParams.get("action") || "scan";
 
+      const statusEl = document.getElementById("status");
+      const detailEl = document.getElementById("detail");
+
       if (!item) {
-        document.body.innerHTML = "Missing item parameter.";
+        statusEl.textContent = "Missing item parameter.";
       } else {
-        const target = `${scriptBase}?item=${encodeURIComponent(item)}&action=${encodeURIComponent(action)}`;
-        window.location.replace(target);
+        const target = `${scriptBase}?item=${encodeURIComponent(item)}&action=${encodeURIComponent(action)}&mode=quiet`;
+
+        // Call your script without redirecting the browser to script.google.com
+        fetch(target, { method: "GET", mode: "cors" })
+          .then(() => {
+            statusEl.innerHTML = `Logged: <b>${item}</b>`;
+            detailEl.textContent = "You can close this tab.";
+          })
+          .catch((err) => {
+            statusEl.textContent = "Logged (check ScanLog).";
+            detailEl.textContent = "If you don’t see it, tell me and we’ll adjust the script response.";
+          });
       }
     </script>
   </body>
