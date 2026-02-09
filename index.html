@@ -27,15 +27,15 @@
         statusEl.textContent = "Missing item parameter.";
       } else {
         // JSONP callback
-      window.qrLogCallback = function (resp) {
-  if (resp && resp.ok) {
-    statusEl.innerHTML = `Logged: <b>${item}</b>`;
-    detailEl.textContent = "Logged to ScanLog successfully.";
-  } else {
-    statusEl.textContent = "Log failed.";
-    detailEl.textContent = (resp && resp.message) ? resp.message : "No response from script.";
-  }
-};
+        window.qrLogCallback = function (resp) {
+          if (resp && resp.ok) {
+            statusEl.innerHTML = `Logged: <b>${item}</b>`;
+            detailEl.textContent = "You can close this tab.";
+          } else {
+            statusEl.textContent = "Log failed.";
+            detailEl.textContent = (resp && resp.message) ? resp.message : "Unknown error.";
+          }
+        };
 
         // Add a timeout so we don’t claim success if the call never returns
         const t = setTimeout(() => {
@@ -62,3 +62,4 @@
     </script>
   </body>
 </html>
+
