@@ -16,7 +16,6 @@
 
     <script>
       const scriptBase = "https://script.google.com/macros/s/AKfycbzCvQMCxdzJTXy6qk8gAE2BEHXFJJfQ-5WUP14bEz6Vu8PSbvwoTwmw8r6hDicDk8oBgA/exec";
-
       const url = new URL(window.location.href);
       const item = url.searchParams.get("item") || "";
       const action = url.searchParams.get("action") || "scan";
@@ -27,18 +26,38 @@
       if (!item) {
         statusEl.textContent = "Missing item parameter.";
       } else {
-        const target = `${scriptBase}?item=${encodeURIComponent(item)}&action=${encodeURIComponent(action)}&mode=quiet`;
-
-        // Call your script without redirecting the browser to script.google.com
-        fetch(target, { method: "GET", mode: "cors" })
-          .then(() => {
+        // JSONP callback
+        window.qrLogCallback = function (resp) {
+          if (resp && resp.ok) {
             statusEl.innerHTML = `Logged: <b>${item}</b>`;
             detailEl.textContent = "You can close this tab.";
-          })
-          .catch((err) => {
-            statusEl.textContent = "Logged (check ScanLog).";
-            detailEl.textContent = "If you don’t see it, tell me and we’ll adjust the script response.";
-          });
+          } else {
+            statusEl.textContent = "Log failed.";
+            detailEl.textContent = (resp && resp.message) ? resp.message : "Unknown error.";
+          }
+        };
+
+        // Add a timeout so we don’t claim success if the call never returns
+        const t = setTimeout(() => {
+          statusEl.textContent = "Log did not complete.";
+          detailEl.textContent = "Check ScanLog. If no new row, tell me.";
+        }, 6000);
+
+        // Wrap callback to clear timeout
+        const original = window.qrLogCallback;
+        window.qrLogCallback = function (resp) {
+          clearTimeout(t);
+          original(resp);
+        };
+
+        // JSONP script injection (bypasses CORS)
+        const s = document.createElement("script");
+        s.src =
+          scriptBase +
+          "?item=" + encodeURIComponent(item) +
+          "&action=" + encodeURIComponent(action) +
+          "&callback=qrLogCallback";
+        document.body.appendChild(s);
       }
     </script>
   </body>
