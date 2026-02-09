@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Logging...</title>
+  </head>
+  <body>
+    Logging scan…
+    <script>
+      const scriptBase = "https://script.google.com/macros/s/AKfycbzCvQMCxdzJTXy6qk8gAE2BEHXFJJfQ-5WUP14bEz6Vu8PSbvwoTwmw8r6hDicDk8oBgA/exec";
+      const url = new URL(window.location.href);
+      const item = url.searchParams.get("item") || "";
+      const action = url.searchParams.get("action") || "scan";
+
+      if (!item) {
+        document.body.innerHTML = "Missing item parameter.";
+      } else {
+        const target = `${scriptBase}?item=${encodeURIComponent(item)}&action=${encodeURIComponent(action)}`;
+        window.location.replace(target);
+      }
+    </script>
+  </body>
+</html>
